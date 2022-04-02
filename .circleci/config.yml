@@ -15,15 +15,22 @@ jobs:
       - image: 'cimg/node:17.8.0-browsers'
     steps:
       - checkout
-      - run: mkdir bucket && echo "lorem ipsum" > bucket/build_asset.txt
+      - run: npm install && npm run build
       - aws-s3/sync:
           arguments: |
             --acl public-read \
             --cache-control "max-age=86400"
-          from: bucket
+          from: build
           to: 's3://ci-cd-jjimenez'
 workflows:
   test_build_deploy:
     jobs:
       - test
+      - deploy:
+         requires:
+          - test
+         filters:
+          branches:
+           only:
+            - production
 
